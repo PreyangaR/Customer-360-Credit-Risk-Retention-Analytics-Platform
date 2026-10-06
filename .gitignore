@@ -1,0 +1,13 @@
+# Python virtual environment
+.venv/
+
+# dbt generated files
+target/
+dbt_packages/
+
+# Logs
+logs/
+
+# Environment / secrets
+.env
+profiles.yml

@@ -1,0 +1,54 @@
+version: 2
+
+models:
+  - name: mart_customer_360
+
+    description: >
+      Customer-level business mart combining customer attributes,
+      account metrics, loan metrics, transaction activity, and
+      derived customer indicators.
+
+    columns:
+
+      - name: customer_id
+        description: "Unique finance-domain customer identifier."
+        data_tests:
+          - not_null
+          - unique
+
+      - name: customer_type
+        description: "Customer classification from the customer master."
+        data_tests:
+          - not_null
+
+      - name: has_active_loan
+        description: "Indicates whether the customer has at least one active loan."
+        data_tests:
+          - not_null
+
+      - name: has_overdue_loan
+        description: "Indicates whether the customer has at least one overdue loan."
+        data_tests:
+          - not_null
+
+      - name: customer_activity_level
+        description: "Rule-based classification based on total transaction count."
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - Inactive
+                - Low Activity
+                - Medium Activity
+                - High Activity
+
+      - name: loan_status_summary
+        description: "Customer-level loan status using priority: Overdue, Active, Paid Off, No Loan."
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - Overdue
+                - Active
+                - Paid Off
+                - No Loan

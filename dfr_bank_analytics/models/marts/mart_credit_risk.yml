@@ -1,0 +1,109 @@
+version: 2
+
+models:
+  - name: mart_credit_risk
+    description: >
+      Customer-level credit risk mart containing account balances,
+      loan exposure, delinquency indicators, interest-rate metrics,
+      and a rule-based observed credit risk segment.
+
+    columns:
+
+      - name: customer_id
+        description: "Unique finance-domain customer identifier."
+        data_tests:
+          - not_null
+          - unique
+
+      - name: customer_type
+        description: "Customer classification from the customer master."
+        data_tests:
+          - not_null
+
+      - name: total_account_balance
+        description: >
+          Total balance across all account records associated
+          with the customer.
+
+      - name: active_deposit_balance
+        description: >
+          Balance associated with the customer's active accounts.
+
+      - name: active_account_count
+        description: >
+          Number of currently active accounts associated with the customer.
+
+      - name: total_loans_borrowed
+        description: >
+          Number of distinct loans associated with the customer.
+
+      - name: total_loan_exposure
+        description: >
+          Sum of principal amounts across all loans associated
+          with the customer. This is loan principal exposure,
+          not confirmed outstanding balance.
+
+      - name: active_loan_exposure
+        description: >
+          Sum of principal amounts associated with the customer's
+          active loans.
+
+      - name: overdue_loan_exposure
+        description: >
+          Sum of principal amounts associated with the customer's
+          overdue loans.
+
+      - name: active_loan_count
+        description: "Number of active loans associated with the customer."
+
+      - name: overdue_loan_count
+        description: "Number of overdue loans associated with the customer."
+
+      - name: paid_off_loan_count
+        description: "Number of paid-off loans associated with the customer."
+
+      - name: average_interest_rate
+        description: "Average interest rate across the customer's loans."
+
+      - name: max_interest_rate
+        description: "Highest interest rate among the customer's loans."
+
+      - name: credit_exposure_to_deposit_ratio
+        description: >
+          Active loan principal exposure divided by active deposit balance.
+          This is an analytical indicator and is not a formal credit score.
+
+      - name: is_delinquent
+        description: >
+          Binary indicator showing whether the customer has at least
+          one overdue loan.
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+
+      - name: has_active_loan
+        description: "Indicates whether the customer has at least one active loan."
+        data_tests:
+          - not_null
+
+      - name: has_overdue_loan
+        description: "Indicates whether the customer has at least one overdue loan."
+        data_tests:
+          - not_null
+
+      - name: credit_risk_segment
+        description: >
+          Rule-based observed credit risk classification.
+          Multiple overdue loans are classified as Tier 4,
+          one overdue loan as Tier 3, customers with no overdue
+          loans but meaningful active exposure as Tier 2,
+          and remaining customers as Tier 1.
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - Tier 1 - Lower Observed Risk
+                - Tier 2 - Moderate Risk
+                - Tier 3 - High Risk
+                - Tier 4 - Critical Risk

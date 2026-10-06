@@ -1,0 +1,5 @@
+risk_segment,min_overdue_loans,min_active_loan_count,min_active_exposure
+Tier 1 - Lower Observed Risk,0,0,0
+Tier 2 - Moderate Risk,0,2,100000
+Tier 3 - High Risk,1,0,0
+Tier 4 - Critical Risk,2,0,0

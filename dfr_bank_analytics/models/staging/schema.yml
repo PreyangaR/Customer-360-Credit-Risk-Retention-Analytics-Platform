@@ -1,0 +1,210 @@
+version: 2
+
+models:
+  - name: stg_customers
+    columns:
+      - name: customer_id
+        tests:
+          - not_null
+          - unique
+
+      - name: customer_type_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customer_types')
+              field: customer_type_id
+
+      - name: address_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_addresses')
+              field: address_id
+
+
+  - name: stg_accounts
+    columns:
+      - name: account_id
+        tests:
+          - not_null
+          - unique
+
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+
+      - name: account_type_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_account_types')
+              field: account_type_id
+
+      - name: account_status_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_account_statuses')
+              field: account_status_id
+
+
+  - name: stg_loans
+    columns:
+      - name: loan_id
+        tests:
+          - not_null
+          - unique
+
+      - name: account_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_accounts')
+              field: account_id
+
+      - name: loan_status_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_loan_statuses')
+              field: loan_status_id  
+
+
+  - name: stg_transactions
+    columns:
+      - name: transaction_id
+        tests:
+          - not_null
+          - unique
+
+      - name: account_origin_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_accounts')
+              field: account_id
+
+      - name: account_destination_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_accounts')
+              field: account_id
+
+      - name: transaction_type_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_transaction_types')
+              field: transaction_type_id
+
+      - name: branch_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_branches')
+              field: branch_id
+  
+
+  - name: stg_account_statuses
+    columns:
+      - name: account_status_id
+        tests:
+          - not_null
+          - unique
+
+      - name: status_name
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Active', 'Inactive', 'Closed']
+
+  
+  - name: stg_loan_statuses
+    columns:
+      - name: loan_status_id
+        tests:
+          - not_null
+          - unique
+
+      - name: status_name
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Active', 'Paid Off', 'Overdue']
+
+
+
+  - name: stg_account_types
+    columns:
+      - name: account_type_id
+        tests:
+          - not_null
+          - unique
+
+      - name: type_name
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Checking', 'Savings', 'Payroll', 'Business', 'Youth']
+
+
+  
+  - name: stg_customer_types
+    columns:
+      - name: customer_type_id
+        tests:
+          - not_null
+          - unique
+
+      - name: type_name
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Individual', 'Small Business', 'Large Enterprise']
+
+
+
+  - name: stg_transaction_types
+    columns:
+      - name: transaction_type_id
+        tests:
+          - not_null
+          - unique
+
+      - name: type_name
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Deposit', 'Withdrawal', 'Transfer', 'Payment']
+
+
+
+
+  - name: stg_addresses
+    columns:
+      - name: address_id
+        tests:
+          - not_null
+          - unique
+
+
+
+
+  - name: stg_branches
+    columns:
+      - name: branch_id
+        tests:
+          - not_null
+          - unique
+
+      - name: address_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_addresses')
+              field: address_id

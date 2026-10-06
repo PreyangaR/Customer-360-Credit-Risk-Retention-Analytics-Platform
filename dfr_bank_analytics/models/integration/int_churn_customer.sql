@@ -1,0 +1,23 @@
+SELECT
+    customer_id,
+    vintage,
+    age,
+    gender,
+    dependents,
+    occupation,
+    city,
+    customer_nw_category,
+    branch_code,
+    current_balance,
+    previous_month_end_balance,
+    average_monthly_balance_prevq,
+    average_monthly_balance_prevq2,
+    current_month_credit,
+    previous_month_credit,
+    current_month_debit,
+    previous_month_debit,
+    current_month_balance,
+    previous_month_balance,
+    churn,
+    last_transaction
+FROM {{ ref('stg_churn_prediction') }}

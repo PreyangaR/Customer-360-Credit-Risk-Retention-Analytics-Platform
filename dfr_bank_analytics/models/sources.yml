@@ -1,0 +1,27 @@
+version: 2
+
+sources:
+  - name: synthetic_finance
+    database: DFR_BANK
+    schema: RAW
+
+    tables:
+      - name: customers
+      - name: accounts
+      - name: loans
+      - name: transactions
+      - name: addresses
+      - name: branches
+      - name: account_types
+      - name: account_statuses
+      - name: customer_types
+      - name: loan_statuses
+      - name: transaction_types
+
+
+  - name: churn
+    database: DFR_BANK
+    schema: RAW
+    
+    tables:
+      - name: churn_prediction

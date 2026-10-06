@@ -1,0 +1,23 @@
+SELECT
+    CUSTOMER_ID                        AS customer_id,
+    VINTAGE                            AS vintage,
+    AGE                                AS age,
+    GENDER                             AS gender,
+    DEPENDENTS                         AS dependents,
+    OCCUPATION                         AS occupation,
+    CITY                               AS city,
+    CUSTOMER_NW_CATEGORY               AS customer_nw_category,
+    BRANCH_CODE                        AS branch_code,
+    CURRENT_BALANCE                    AS current_balance,
+    PREVIOUS_MONTH_END_BALANCE         AS previous_month_end_balance,
+    AVERAGE_MONTHLY_BALANCE_PREVQ      AS average_monthly_balance_prevq,
+    AVERAGE_MONTHLY_BALANCE_PREVQ2     AS average_monthly_balance_prevq2,
+    CURRENT_MONTH_CREDIT               AS current_month_credit,
+    PREVIOUS_MONTH_CREDIT              AS previous_month_credit,
+    CURRENT_MONTH_DEBIT                AS current_month_debit,
+    PREVIOUS_MONTH_DEBIT               AS previous_month_debit,
+    CURRENT_MONTH_BALANCE               AS current_month_balance,
+    PREVIOUS_MONTH_BALANCE              AS previous_month_balance,
+    CHURN                              AS churn,
+    LAST_TRANSACTION                   AS last_transaction
+FROM {{ source('churn', 'churn_prediction') }}

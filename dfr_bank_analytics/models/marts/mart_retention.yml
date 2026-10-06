@@ -1,0 +1,76 @@
+version: 2
+
+models:
+
+  - name: mart_retention
+    description: >
+      Customer-level retention mart for the churn-domain customer population.
+      Contains customer profile attributes, tenure, financial behavior,
+      transaction recency, balance movement indicators, and observed
+      churn and retention outcomes.
+
+    columns:
+
+      - name: customer_id
+        description: "Unique churn-domain customer identifier."
+        data_tests:
+          - not_null
+          - unique
+
+      - name: churn
+        description: "Observed churn outcome where 1 indicates churned and 0 indicates retained."
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+
+      - name: retention_flag
+        description: "Binary retention indicator where 1 indicates retained and 0 indicates churned."
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+
+      - name: churn_status
+        description: "Human-readable observed retention outcome."
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - Churned
+                - Retained
+
+      - name: vintage_band
+        description: "Customer vintage grouped into analytical tenure bands."
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - < 1 year
+                - 1 - <2 years
+                - 2 - <3 years
+                - 3 - <4 years
+                - 4 - <5 years
+                - 5+ years
+
+      - name: transaction_recency_band
+        description: "Historical transaction recency grouped into analytical bands."
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - 0-30 days
+                - 31-90 days
+                - 91-180 days
+                - 181-365 days
+                - Unknown
+
+      - name: balance_trend
+        description: "Direction of month-over-month balance movement."
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - Increasing
+                - Decreasing
+                - No Change
