@@ -1,0 +1,176 @@
+
+version: 2
+
+models:
+  - name: dim_customer
+    columns:
+      - name: customer_id
+        data_tests:
+          - not_null
+          - unique
+
+  - name: dim_account
+    columns:
+      - name: account_id
+        data_tests:
+          - not_null
+          - unique
+      - name: customer_id
+        data_tests:
+          - not_null
+
+  - name: dim_date
+    columns:
+      - name: date_key
+        data_tests:
+          - not_null
+          - unique
+      - name: full_date
+        data_tests:
+          - not_null
+          - unique
+
+  - name: dim_branch
+    columns:
+      - name: branch_key
+        data_tests:
+          - not_null
+          - unique
+
+  - name: dim_transaction_type
+    columns:
+      - name: transaction_type_key
+        data_tests:
+          - not_null
+          - unique
+
+  - name: dim_loan_status
+    columns:
+      - name: loan_status_key
+        data_tests:
+          - not_null
+          - unique
+
+  - name: dim_churn_customer
+    columns:
+      - name: customer_id
+        data_tests:
+          - not_null
+          - unique
+  
+
+
+
+  - name: fact_transaction
+    columns:
+      - name: transaction_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: origin_account_key
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_origin_account')
+                field: account_id
+
+      - name: destination_account_key
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_destination_account')
+                field: account_id
+
+      - name: transaction_type_key
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_transaction_type')
+                field: transaction_type_key
+
+      - name: branch_key
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_branch')
+                field: branch_key
+
+      - name: date_key
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+
+
+
+
+
+
+  - name: fact_loan
+    columns:
+      - name: loan_id
+        data_tests:
+          - not_null
+          - unique
+      
+      - name: account_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_account')
+                field: account_id
+
+      - name: loan_status_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_loan_status')
+                field: loan_status_key
+
+      - name: start_date_key
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+
+      - name: end_date_key
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+
+
+
+
+  - name: fact_churn
+    columns:
+      - name: churn
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [0, 1]
+        
+      
+      - name: customer_id
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('dim_churn_customer')
+                field: customer_id
+
+      - name: last_transaction_date_key
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+
