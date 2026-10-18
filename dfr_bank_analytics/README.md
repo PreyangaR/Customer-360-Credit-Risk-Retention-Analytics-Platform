@@ -151,6 +151,8 @@ Demonstrates:
 
 This is an educational/portfolio demonstration rather than the production incremental strategy for the core transaction model.
 
+The incremental demonstration does not guarantee capture of every late-arriving record. Production implementations should consider reliable ingestion timestamps or CDC, periodic reconciliation, and appropriate backfill strategies.
+
 ### Snapshot / SCD Type 2
 
 `customer_snapshot_demo`
@@ -183,15 +185,58 @@ dfr_bank_analytics/
 │
 ├── docs/
 │   ├── architecture_decisions.md
-│   └── data_quality_exceptions.md
+│   ├── data_quality_exceptions.md
+│   ├── ingestion_setup.md
+│   ├── dbt_best_practices.md
+│   └── performance_and_cost_optimization.md
 │
 ├── macros/
 │   └── generate_schema_name.sql
 │
 ├── models/
+│   ├── sources.yml
+│   │
 │   ├── staging/
+│   │   ├── schema.yml
+│   │   ├── stg_customers.sql
+│   │   ├── stg_accounts.sql
+│   │   ├── stg_loans.sql
+│   │   ├── stg_transactions.sql
+│   │   ├── stg_addresses.sql
+│   │   ├── stg_branches.sql
+│   │   ├── stg_account_types.sql
+│   │   ├── stg_account_statuses.sql
+│   │   ├── stg_customer_types.sql
+│   │   ├── stg_loan_statuses.sql
+│   │   ├── stg_transaction_types.sql
+│   │   └── stg_churn_prediction.sql
+│   │
 │   ├── integration/
+│   │   ├── schema.yml
+│   │   ├── int_customer_core.sql
+│   │   ├── int_customer_accounts.sql
+│   │   ├── int_customer_loans.sql
+│   │   ├── int_customer_transactions.sql
+│   │   ├── int_churn_customer.sql
+│   │   └── int_transactions_incremental_demo.sql
+│   │
 │   └── marts/
+│       ├── schema.yml
+│       ├── mart_customer_360.sql
+│       ├── mart_credit_risk.sql
+│       ├── mart_retention.sql
+│       ├── dim_customer.sql
+│       ├── dim_account.sql
+│       ├── dim_date.sql
+│       ├── dim_branch.sql
+│       ├── dim_transaction_type.sql
+│       ├── dim_loan_status.sql
+│       ├── dim_origin_account.sql
+│       ├── dim_destination_account.sql
+│       ├── dim_churn_customer.sql
+│       ├── fact_transaction.sql
+│       ├── fact_loan.sql
+│       └── fact_churn.sql
 │
 ├── seeds/
 │   └── credit_risk_thresholds.csv
@@ -234,6 +279,29 @@ These include:
 - source-data quality handling
 - analytical risk segmentation
 - incremental processing considerations
+- S3-to-Snowflake ingestion setup, IAM troubleshooting, and security considerations are documented in [`docs/ingestion_setup.md`](docs/ingestion_setup.md).
+
+
+## dbt Best Practices
+
+- **Layered transformations:** Separate staging, integration, and mart models to keep transformations organized and maintainable.
+- **Source management:** Define raw source tables in `models/sources.yml` and reference models using `ref()`.
+- **Data quality:** Use schema tests and custom SQL tests to validate uniqueness, relationships, accepted values, and business rules.
+- **Reusable logic:** Use macros for common logic, including the custom schema naming macro.
+- **Materialization strategy:** Use views for staging, tables for integration and marts, and an incremental model for the demonstration workload.
+- **Version control:** Maintain project code and documentation in Git, while excluding credentials and local environment files.
+
+
+## Snowflake Cost and Performance Considerations
+
+- **Warehouse sizing:** Used an X-Small Snowflake warehouse (`DFR_WH`) for this development workload.
+- **Compute cost control:** Configured automatic suspension after 60 seconds of inactivity and automatic resumption when needed.
+- **Model materialization:** Used views for staging and tables for integration and marts, balancing transformation organization with downstream query requirements.
+- **Incremental processing:** Built an incremental transaction demo using `transaction_id` as the unique key and a three-day lookback window. This reduces the processing scope but can miss late-arriving records older than the window.
+- **Query optimization:** Review Snowflake Query Profile, bytes scanned, execution time, and query history before making performance changes.
+
+These settings provide a baseline for cost management. Query Profile analysis and before/after measurements remain future optimization tasks; no quantified cost savings or query-performance improvements are claimed.
+
 
 ## Running the Project
 
@@ -279,6 +347,26 @@ Run snapshots:
 dbt snapshot
 ```
 
+## DAG and dbt Documentation
+
+dbt builds a Directed Acyclic Graph (DAG) from model dependencies declared through `ref()` and `source()`. This determines execution order and helps identify upstream dependencies.
+
+Generate project documentation and lineage metadata using:
+
+```bash
+dbt docs generate
+dbt docs serve
+```
+
+Useful commands for inspecting dependencies and running a selected model with its upstream dependencies:
+
+```bash
+dbt ls --select +mart_customer_360
+```
+
+The dbt documentation site provides model descriptions, available tests, source information, and lineage where configured.
+
+
 ## Environment and Security
 
 The following should not be committed to Git:
@@ -291,6 +379,7 @@ The following should not be committed to Git:
 - logs
 
 These are excluded through `.gitignore` where applicable.
+
 
 ## Project Purpose
 
