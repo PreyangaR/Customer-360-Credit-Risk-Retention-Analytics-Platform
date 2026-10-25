@@ -29,18 +29,42 @@ Raw data is kept separate from transformed data. dbt handles data standardizatio
 ![DFR Bank end-to-end data architecture](docs/images/end_to_end_architecture.png)
 
 
+## Additional Ingestion Proof of Concept: REST API to Amazon S3
+
+As an extension to the DFR Bank Customer 360, Credit Risk & Retention Analytics Platform, I implemented a standalone Python-based ingestion proof of concept to demonstrate extracting data from a public REST API and storing the response in Amazon S3.
+
+**Implementation highlights**
+- **API source:** World Bank public API — India population indicator.
+- **Extraction:** Python `requests` library to call the REST API and validate the HTTP response.
+- **Cloud storage:** Boto3 to upload the JSON response to Amazon S3.
+- **Authentication:** AWS credentials configured outside the source code.
+- **Access control:** Dedicated IAM permissions restricted to the designated API-ingestion S3 prefix.
+- **Data organization:** Timestamped JSON objects stored under a structured S3 key.
+
+**Architecture**
+
+World Bank REST API → Python Requests → JSON response → Boto3 → Amazon S3
+
+**Scope:** This is a standalone ingestion proof of concept, separate from the primary banking-data pipeline. The current implementation retrieves the first API response page and uploads it to S3. Automated scheduling, pagination, retry handling, and downstream Snowflake integration are not implemented.
+
+For implementation details, see the DFR Bank project README and `docs/ingestion_setup.md`.
+
 
 ## Technology Stack
 
-| Tool | Purpose |
+| Tool / Technology | Purpose |
 |---|---|
-| AWS S3 | Stores the source CSV files. |
-| Snowflake | Loads raw data and stores transformed and reporting datasets. |
-| dbt | Builds staging, integration, and mart models, along with tests and reusable SQL logic. |
-| Power BI | Provides the semantic model, DAX measures, and dashboards. |
-| Python | Supports the local dbt development environment. |
-| Git and GitHub | Manage code changes and version control. |
-| PostgreSQL and Airbyte | Used for an additional ingestion proof of concept. |
+| **Amazon S3** | Stores source CSV datasets and the JSON output from the standalone API-ingestion proof of concept. |
+| **Snowflake** | Loads raw data and stores staging, integration, and reporting datasets. |
+| **dbt Core** | Builds staging, integration, and mart models; supports reusable SQL logic, data tests, and incremental-processing demonstrations. |
+| **Power BI** | Provides the semantic model, DAX measures, and interactive dashboards. |
+| **Python** | Supports the local development environment and the standalone REST API-to-S3 ingestion script. |
+| **Requests** | Sends HTTP requests to the World Bank API and retrieves JSON responses. |
+| **Boto3** | Uses the AWS SDK for Python to upload JSON objects to Amazon S3. |
+| **AWS IAM** | Controls permissions for AWS access and the API-ingestion S3 prefix. |
+| **Git and GitHub** | Support version control, change tracking, and project documentation. |
+| **PostgreSQL and Airbyte** | Used in an additional ingestion proof of concept; the PostgreSQL-to-Snowflake sync remains incomplete. |
+
 
 ## Data Pipeline
 
@@ -199,22 +223,15 @@ Customer 360, Credit Risk & Retention Analytics Platform/
 ├── README.md
 ├── docs/
 │   ├── images/
-│   │   ├── end_to_end_architecture.png
-│   │   ├── star_schema.png
-│   │   ├── executive_overview.png
-│   │   ├── customer_360.png
-│   │   ├── credit_risk.png
-│   │   └── retention_churn.png
 │   └── diagrams/
-│       ├── end_to_end_architecture.md
-│       └── star_schema.md
 ├── dfr_bank_analytics/
+│   ├── ingestion/
+│   ├── docs/
 │   ├── models/
 │   ├── macros/
 │   ├── seeds/
 │   ├── snapshots/
 │   ├── tests/
-│   ├── docs/
 │   └── README.md
 └── dfr_bank_analytics_power_bi/
     └── dfr_bank_analyses_visual.pbix

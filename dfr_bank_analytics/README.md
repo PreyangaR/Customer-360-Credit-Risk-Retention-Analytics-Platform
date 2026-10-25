@@ -190,12 +190,14 @@ dfr_bank_analytics/
 │   ├── dbt_best_practices.md
 │   └── performance_and_cost_optimization.md
 │
+├── ingestion/
+│   └── ingest_world_bank_to_s3.py
+│
 ├── macros/
 │   └── generate_schema_name.sql
 │
 ├── models/
 │   ├── sources.yml
-│   │
 │   ├── staging/
 │   │   ├── schema.yml
 │   │   ├── stg_customers.sql
@@ -280,6 +282,60 @@ These include:
 - analytical risk segmentation
 - incremental processing considerations
 - S3-to-Snowflake ingestion setup, IAM troubleshooting, and security considerations are documented in [`docs/ingestion_setup.md`](docs/ingestion_setup.md).
+
+
+## Additional Ingestion Proof of Concept: Python REST API to Amazon S3
+
+### Overview
+
+As an extension to the DFR Bank analytics project, a standalone Python ingestion proof of concept was implemented to demonstrate retrieving data from a public REST API and storing the response in Amazon S3.
+
+This implementation demonstrates an alternative source-ingestion method alongside the project's primary CSV-to-Snowflake pipeline. It is independent of the main banking-data transformations and Power BI reporting workflow.
+
+### Architecture
+
+World Bank REST API → Python Requests → JSON Response → Boto3 → Amazon S3
+
+### Source
+
+The implementation uses the World Bank public API to retrieve India's total population indicator.
+
+- **Country code:** `IND`
+- **Indicator code:** `SP.POP.TOTL`
+- **Response format:** JSON
+
+### Implementation
+
+- **API extraction:** Python Requests sends an HTTP GET request to the World Bank API.
+- **Response handling:** The script checks for HTTP errors, parses the JSON response, and validates its basic structure.
+- **AWS integration:** Boto3 uploads the JSON response to the existing Amazon S3 bucket.
+- **Object organization:** Output is stored under a structured, timestamped S3 key.
+- **Security:** AWS credentials are configured outside the source code, and a dedicated IAM policy restricts uploads to the designated API-ingestion prefix.
+
+### S3 Output Structure
+
+The uploaded objects follow this key pattern:
+
+`api_ingestion/world_bank/population/year=YYYY/month=MM/population_YYYYMMDDTHHMMSSZ.json`
+
+The timestamp helps distinguish separate ingestion runs.
+
+### Validation
+
+The proof of concept was tested by confirming successful AWS authentication, a successful API response, and successful JSON upload. The uploaded object was also verified in the Amazon S3 console.
+
+### Current Limitations
+
+- Only the first API response page is retrieved.
+- Pagination and automated scheduling are not implemented.
+- Retry handling, monitoring, and automated failure notifications are not implemented.
+- The extracted data is not loaded into Snowflake or transformed by dbt.
+- The script is executed manually rather than through an orchestration platform.
+
+This implementation is an ingestion proof of concept, not a fully production-ready pipeline. The primary DFR Bank analytics pipeline remains separate.
+
+For setup instructions, prerequisites, execution steps, and validation details, see [`docs/ingestion_setup.md`](docs/ingestion_setup.md).
+
 
 
 ## dbt Best Practices
